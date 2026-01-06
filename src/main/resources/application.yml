@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: pedidosComRabbitMQ
+  datasource:
+    url: jdbc:postgresql://postgres_db:5432/pedidos_db
+    username: postgres
+    password: postgres
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  rabbitmq:
+    host: rabbitmq
+    port: 5672
+    username: guest
+    password: guest

@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: pedidos-app
+    ports:
+      - "8080:8080"
+      - "5005:5005" # Debug port
+    environment:
+      - JAVA_TOOL_OPTIONS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+    depends_on:
+      - postgres_db
+      - rabbitmq
+    volumes:
+      # Mount the source code for easy access/rebuilds if running via maven wrapper in dev mode instead of jar
+      # But since we are using a packaged jar in Dockerfile, this is mostly for reference or if you switch to `mvn spring-boot:run`
+      - ./:/app
+      - ~/.m2:/root/.m2 # Cache maven dependencies
+    networks:
+      - pedidos-network
+
+  postgres_db:
+    image: postgres:16-alpine
+    container_name: pedidos-postgres
+    environment:
+      POSTGRES_DB: pedidos_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - pedidos-network
+
+  rabbitmq:
+    image: rabbitmq:3.12-management-alpine
+    container_name: pedidos-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - pedidos-network
+
+volumes:
+  postgres_data:
+
+networks:
+  pedidos-network:
+    driver: bridge
